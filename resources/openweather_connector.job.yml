@@ -12,7 +12,7 @@ resources:
 
       tasks:
         - task_key: batch_custom_connector
-          max_reties: 0
+          max_retries: 0
           environment_key: spark-connect
           notebook_task:
             notebook_path: ../src/openweather_connector/datasource.py
