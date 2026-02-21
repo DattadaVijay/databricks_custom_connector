@@ -81,6 +81,7 @@ query = (
          .load()
          .writeStream
          .format("console")
+         .trigger(once=True)
          .outputMode("append")
          .start()
 )
