@@ -4,8 +4,9 @@ resources:
       name: openweather_connector_job
 
       tags:
-        - datasourceAPI
-        - custom_connector
+        env: dev
+        concept: custom_connector
+        api: DataSourceAPI
 
       on_failure:
           - vamsiviju@yahoo.com
