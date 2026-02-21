@@ -5,7 +5,6 @@ from pyspark.sql.types import StructType
 import math
 from pyspark.sql.types import *
 import requests
-import time
 
 # COMMAND ----------
 
@@ -19,7 +18,7 @@ import time
 
 # class 1 explicit on what key I want to partition
 
-class OpenWeatherPartition(InputPartition):
+class openWeatherPartiton(InputPartition):
     def __init__(self, city):
         self.city = city
 
@@ -35,15 +34,14 @@ class OpenWeatherDataSource(DataSource):
 
     def schema(self):
         return """
-            city STRING,
-            date STRING,
-            temp DOUBLE,
-            humidity INT,
-            description STRING
+            city string,
+            temperature double,
+            humidity int,
+            weather string
         """
 
     def reader(self, schema: StructType):
-        return OpenWeatherReader(schema, self.options)
+        return OpenWeatherDataSource(self.options)
 
 # COMMAND ----------
 
@@ -64,66 +62,26 @@ class OpenWeatherDataSource(DataSource):
     
 
 class OpenWeatherReader(DataSourceReader):
-
     def __init__(self, schema, options):
         self.schema = schema
         self.api_key = options.get("api_key")
         self.cities = options.get("cities", "").split(",")
 
-        if not self.api_key:
-            raise Exception("api_key required")
-
     def partitions(self):
-        return [OpenWeatherPartition(city.strip()) for city in self.cities if city.strip()]
+        return [openWeatherPartiton(city) for city in self.cities]
 
-    def get_lat_lon(self, city):
-        geo_url = f"http://api.openweathermap.org/geo/1.0/direct?q={city}&limit=1&appid={self.api_key}"
-        response = requests.get(geo_url)
-        response.raise_for_status()
-        geo_data = response.json()
-
-        if not geo_data:
-            raise Exception(f"City not found: {city}")
-
-        return geo_data[0]["lat"], geo_data[0]["lon"]
-
-    def read(self, partition: OpenWeatherPartition):
+    def read(self, partition: openWeatherPartiton):
         city = partition.city
-        lat, lon = self.get_lat_lon(city)
-
-        for days_back in range(1, 11):  # last 10 days
-            dt = datetime.utcnow() - timedelta(days=days_back)
-            timestamp = int(dt.timestamp())
-
-            url = (
-                f"https://api.openweathermap.org/data/3.0/onecall/timemachine"
-                f"?lat={lat}&lon={lon}&dt={timestamp}"
-                f"&appid={self.api_key}&units=metric"
-            )
-
-            response = requests.get(url)
-            response.raise_for_status()
+        url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={self.api_key}&units=metric"
+        
+        response = requests.get(url)
+        if response.status_code == 200:
             data = response.json()
-
-            # Timemachine returns hourly data → take daily average
-            temps = [hour["temp"] for hour in data.get("hourly", [])]
-            humidity = [hour["humidity"] for hour in data.get("hourly", [])]
-            description = data.get("hourly", [])[0]["weather"][0]["description"]
-
-            if temps:
-                avg_temp = sum(temps) / len(temps)
-                avg_humidity = int(sum(humidity) / len(humidity))
-            else:
-                avg_temp = None
-                avg_humidity = None
-
             yield (
-                city,
-                dt.strftime("%Y-%m-%d"),
-                avg_temp,
-                avg_humidity,
-                description
-            )
+                city, 
+                float(data['main']['temp']), 
+                int(data['main']['humidity']), 
+                data['weather'][0]['description'])
 
 
 # COMMAND ----------
