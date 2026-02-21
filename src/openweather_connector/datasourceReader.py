@@ -82,6 +82,7 @@ query = (
          .writeStream
          .format("console")
          .trigger(once=True)
+         .option("checkpointLocation", "/Volumes/stateful_processor/default/raw_data/connector/checkpoint")
          .outputMode("append")
          .start()
 )
