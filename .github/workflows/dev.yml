@@ -1,0 +1,40 @@
+name: deploy to dev
+
+on:
+  push:
+    branches: 
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu:latest
+    env:
+      DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }} 
+
+    steps:
+
+      - name: checkout_repo
+        uses: actions/checkout@v4
+
+      - name: databricks_cli_setup
+        uses: databricks/setup-cli:latest
+
+      - name: setup python
+        uses: actions/setup-python@v5
+        with:
+          python_version: "3.12"
+
+      - name: validate bundle
+        run: databricks bundle validate
+
+      - name: deploy bundle
+        run: databricks bundle deploy --target dev
+
+      - name: bundle run
+        run: databricks bundle run -t dev openweather_connector_job
+
+    
+    
+  

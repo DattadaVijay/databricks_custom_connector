@@ -1,0 +1,23 @@
+resources:
+  jobs:
+    openweather_connector_job:
+      name: openweather_connector_job
+
+      tags:
+        - datasourceAPI
+        - custom_connector
+
+      on_failure:
+          - vamsiviju@yahoo.com
+
+      tasks:
+        - task_key: 
+          max_reties: 0
+          environment_key: spark-connect
+          notebook_task:
+            notebook_path: ../src/openweather_connector/datasource.py
+
+      environments:
+        - environment_key: spark-connect
+          spec:
+            environment_version: 4
