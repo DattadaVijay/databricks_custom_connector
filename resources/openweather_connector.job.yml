@@ -18,6 +18,12 @@ resources:
           notebook_task:
             notebook_path: ../src/openweather_connector/datasource.py
 
+        - task_key: stream_custom_connector
+          max_retries: 0
+          environment_key: spark-connect
+          notebook_task:
+            notebook_path: ../src/openweather_connector/datasourceReader.py
+
       environments:
         - environment_key: spark-connect
           spec:
