@@ -11,7 +11,7 @@ resources:
           - vamsiviju@yahoo.com
 
       tasks:
-        - task_key: 
+        - task_key: batch_custom_connector
           max_reties: 0
           environment_key: spark-connect
           notebook_task:
