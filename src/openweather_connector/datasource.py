@@ -2,7 +2,6 @@
 # DBTITLE 1,Untitled
 from pyspark.sql.datasource import DataSource, DataSourceReader, InputPartition
 from pyspark.sql.types import StructType
-import math
 from pyspark.sql.types import *
 import requests
 
