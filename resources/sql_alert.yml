@@ -1,0 +1,29 @@
+resources:
+  alerts:
+    azure_log_warning_alert:
+      display_name: "Azure Logs Warning Alert"
+      query_text: |
+        SELECT count(1) as warning_count 
+        FROM dltvijay.source.azure_logs 
+        WHERE level = 'Warning'
+      
+      warehouse_id: ece081f3bd7cb8a7
+      
+      schedule:
+        quartz_cron_schedule: "0 0/30 * * * ?"
+        timezone_id: "America/Vancouver"
+        pause_status: "UNPAUSED"
+
+      evaluation:
+        comparison_operator: "GREATER_THAN_OR_EQUAL"
+        threshold:
+          value:
+            double_value: 6
+        source:
+          name: "warning_count"
+          aggregation: "MAX"
+        notification:
+          notify_on_ok: true
+          
+          subscriptions:
+            - user_email: "datta.vijay@gmail.com"
