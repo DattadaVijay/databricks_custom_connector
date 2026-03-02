@@ -4,12 +4,9 @@ resources:
       name: openweather_connector_job
 
       tags:
-        env: dev
+        env: ${bundle.target}
         concept: custom_connector
         api: DataSourceAPI
-
-      on_failure:
-          - vamsiviju@yahoo.com
 
       tasks:
         - task_key: batch_custom_connector

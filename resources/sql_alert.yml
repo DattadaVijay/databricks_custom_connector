@@ -18,12 +18,12 @@ resources:
         comparison_operator: "GREATER_THAN_OR_EQUAL"
         threshold:
           value:
-            double_value: 6
+            double_value: 2
         source:
           name: "warning_count"
           aggregation: "MAX"
         notification:
           notify_on_ok: true
-          
+
           subscriptions:
             - user_email: "datta.vijay@gmail.com"
